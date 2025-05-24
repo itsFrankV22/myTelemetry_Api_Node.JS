@@ -1,0 +1,29 @@
+{
+  "name": "pluginvalidation",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "accepts": "^2.0.0",
+    "body-parser": "^2.2.0",
+    "chalk": "^5.4.1",
+    "chalk-animation": "^2.0.3",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "fs": "^0.0.1-security",
+    "rate-limit": "^0.1.1",
+    "socket.io": "^4.8.1",
+    "strip-ansi": "^7.1.0"
+  }
+}

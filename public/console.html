@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Console</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    .header {
+      background-color: #007bff;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    .console {
+      margin: 20px;
+      padding: 10px;
+      background: #222;
+      color: #0f0;
+      font-family: monospace;
+      height: 400px;
+      overflow-y: scroll;
+      border-radius: 5px;
+    }
+    .command-input {
+      display: flex;
+      margin: 20px;
+    }
+    .command-input input {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+    .command-input button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .command-input button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Service Console</h1>
+  </div>
+  <div class="console" id="consoleOutput"></div>
+  <div class="command-input">
+    <input type="text" id="commandInput" placeholder="Enter command...">
+    <button id="sendCommand">Send</button>
+  </div>
+  <script>
+    const consoleOutput = document.getElementById('consoleOutput');
+    const commandInput = document.getElementById('commandInput');
+    const sendCommand = document.getElementById('sendCommand');
+
+    const appendToConsole = (message, isError = false) => {
+      const line = document.createElement('div');
+      line.textContent = message;
+      line.style.color = isError ? 'red' : 'lime';
+      consoleOutput.appendChild(line);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight; // Scroll hacia abajo
+    };
+
+    sendCommand.addEventListener('click', async () => {
+      const command = commandInput.value.trim();
+      if (command === '') return;
+
+      appendToConsole(`> ${command}`);
+
+      try {
+        const response = await fetch('/command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          appendToConsole(data.output);
+        } else {
+          appendToConsole(data.message, true);
+        }
+      } catch (err) {
+        console.error(err);
+        appendToConsole('Error en la conexión con el servidor.', true);
+      }
+
+      commandInput.value = '';
+    });
+  </script>
+</body>
+</html>
