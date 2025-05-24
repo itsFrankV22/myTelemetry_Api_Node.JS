@@ -40,5 +40,5 @@ server.listen(PORT, () => {
     console.log(chalk.green(`🌐 Servidor iniciado en http://localhost:${PORT}`));
 });
 
-// Iniciar consola interactiva
+// Consola
 startConsoleCommands();
