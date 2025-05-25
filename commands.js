@@ -48,7 +48,7 @@ export function startConsoleCommands() {
 
             case 'keygen':
                 if (pluginsCache.length === 0) {
-                    console.log(chalk.red('❌ No hay Herramientas registradas. Agrega nombres al archivo PL.txt.'));
+                    console.log(chalk.red('❌ No hay Herramientas registradas. Agrega nombres al archivo PL.txt. Usa pladd'));
                     return;
                 }
                 console.log(chalk.yellow('🔢 Selecciona una Herramienta por número:'));
