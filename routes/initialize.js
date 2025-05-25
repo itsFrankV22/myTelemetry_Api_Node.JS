@@ -1,8 +1,13 @@
 import express from 'express';
 import chalk from 'chalk';
 import { logRequest } from '../utils/log.js';
+import dotenv from 'dotenv';
+import { EmbedBuilder } from 'discord.js';
+import client from '../Discord/bot.js';
 
+dotenv.config();
 const router = express.Router();
+
 
 function colorLabel(label) {
     switch (label.trim()) {
@@ -67,87 +72,141 @@ function centeredTitle(text, width = 58) {
 }
 const plainSeparator = chalk.gray('─'.repeat(58));
 
-router.get('/initialize/:pluginName', (req, res) => {
-    const { pluginName } = req.params;
-    const {
-        port, validated, name, version, author, description, buildDate,
-        tshockVersion, terrariaVersion, serverOs, machineName, processArch, processUser,
-        dotnetVersion, publicIp, localIp, worldFile, worldSeed, worldSize, worldId,
-        maxPlayers, currPlayers
-    } = req.query;
+router.get('/initialize/:pluginName', async (req, res) => {
+  const { pluginName } = req.params;
+  const {
+    port, validated, name, version, author, description, buildDate,
+    tshockVersion, terrariaVersion, serverOs, machineName, processArch, processUser,
+    dotnetVersion, publicIp, localIp, worldFile, worldSeed, worldSize, worldId,
+    maxPlayers, currPlayers
+  } = req.query;
 
-    if (!pluginName || !port || !validated || !name) {
-        logRequest(
-            '❌ [INITIALIZE]',
-            `Parámetros faltantes: ${chalk.redBright(`Plugin: ${pluginName || 'N/A'}, Puerto: ${port || 'N/A'}, Validado: ${validated || 'N/A'}, Nombre: ${name || 'N/A'}`)}`,
-            chalk.red,
-            false
-        );
-        return res.status(400).json({ error: 'Parámetros inválidos' });
+  if (!pluginName || !port || !validated || !name) {
+    logRequest(
+      '❌ [INITIALIZE]',
+      `Need: ${chalk.redBright(`Plugin: ${pluginName || 'N/A'}, Puerto: ${port || 'N/A'}, Validado: ${validated || 'N/A'}, Nombre: ${name || 'N/A'}`)}`,
+      chalk.red,
+      false
+    );
+    return res.status(400).json({ error: 'Invalid parameters' });
+  }
+
+  const clientIp = req.ip.replace('::ffff:', '');
+  const userAgent = req.get('User-Agent') || 'N/A';
+
+  // Console Table
+  const importantRows = [
+    formatTableRow('PLUGIN', pluginName),
+    formatTableRow('VERSION', version || 'N/A'),
+    formatTableRow('AUTHOR', author || 'N/A'),
+    formatTableRow('PORT', port),
+    formatTableRow('VALIDATED', validated),
+    formatTableRow('SERVER', name),
+    formatTableRow('PUBLIC IP', publicIp || clientIp),
+    formatTableRow('PLAYERS', `${currPlayers || 'N/A'} / ${maxPlayers || 'N/A'}`),
+  ];
+
+  const moreRows = [
+    formatTableRow('DESCRIPTION', description || 'N/A'),
+    formatTableRow('UA', userAgent),
+    formatTableRow('LOCAL IP', localIp || 'N/A'),
+    formatTableRow('BUILD DATE', buildDate || 'N_A'),
+    formatTableRow('TSHOCK', tshockVersion || 'N/A'),
+    formatTableRow('TERRARIA', terrariaVersion || 'N/A'),
+    formatTableRow('OS', serverOs || 'N/A'),
+    formatTableRow('MACHINE', machineName || 'N/A'),
+    formatTableRow('ARCH', processArch || 'N/A'),
+    formatTableRow('USER', processUser || 'N/A'),
+    formatTableRow('DOTNET', dotnetVersion || 'N/A'),
+    formatTableRow('WORLD FILE', worldFile || 'N/A'),
+    formatTableRow('WORLD SEED', worldSeed || 'N/A'),
+    formatTableRow('WORLD SIZE', worldSize || 'N/A'),
+    formatTableRow('WORLD ID', worldId || 'N/A'),
+  ];
+
+  const now = new Date();
+  const tableLines = [
+    separatorWithCubaTime(now),
+    centeredTitle('INITIALIZED TOOL'),
+    plainSeparator,
+    ...importantRows,
+    plainSeparator,
+    ...moreRows,
+    plainSeparator,
+    ''
+  ];
+
+  logRequest('', tableLines.join('\n'), chalk.white, false, pluginName);
+
+  // Discord message
+  try {
+    const embed = new EmbedBuilder()
+  .setTitle(`🧩 initialized Tool`)
+  .setDescription(`From **${name}**`)
+  .setColor(0x00AE86)
+  .addFields(
+    // Información básica
+    { name: '🔌 Tool', value: pluginName, inline: true },
+    { name: '📦 Version', value: version || 'N/A', inline: true },
+    { name: '👤 Auttor', value: author || 'N/A', inline: true },
+
+    { name: '🌐 Status', value: validated, inline: true },
+    { name: '📡 Port', value: port, inline: true },
+    { name: '🧑‍🤝‍🧑 Players', value: `${currPlayers || 'N/A'} / ${maxPlayers || 'N/A'}`, inline: true },
+
+    // Red e IPs
+    { name: '🌍 Public IP', value: publicIp || clientIp, inline: true },
+    { name: '🏠 Local IP', value: localIp || 'N/A', inline: true },
+    { name: '🖥️ User Agent', value: userAgent, inline: true },
+
+    // Sistema
+    { name: '💻 OS', value: serverOs || 'N/A', inline: true },
+    { name: '📦 .NET', value: dotnetVersion || 'N/A', inline: true },
+    { name: '🏷️ Machine', value: machineName || 'N/A', inline: true },
+    { name: '🔧 Arch', value: processArch || 'N/A', inline: true },
+    { name: '👤 User', value: processUser || 'N/A', inline: true },
+
+    // Versión de software
+    { name: '🧠 TShock', value: tshockVersion || 'N/A', inline: true },
+    { name: '🎮 Terraria', value: terrariaVersion || 'N/A', inline: true },
+    { name: '🛠️ Build Date', value: buildDate || 'N/A', inline: true },
+
+    // Mundo
+    { name: '🗺️ World', value: worldFile || 'N/A', inline: true },
+    { name: '🌱 Seed', value: worldSeed || 'N/A', inline: true },
+    { name: '📏 Size', value: worldSize || 'N/A', inline: true },
+    { name: '🆔 World ID', value: worldId || 'N/A', inline: true },
+
+    // Descripción
+    { name: '📝 Desc', value: description || 'N/A', inline: false }
+  )
+  .setTimestamp()
+  .setFooter({ text: 'FV Studios', iconURL: 'https://i.imgur.com/YP5kVNk_d.webp?maxwidth=760&fidelity=grand' });
+
+    const channel = await client.channels.fetch(process.env.INITIALIZE_CHANNEL_ID);
+
+    if (channel && channel.isTextBased()) {
+      await channel.send({ embeds: [embed] });
+      console.log('✅ Embed sended');
+    } else {
+      console.warn('⚠️ Invalid Channel');
     }
 
-    const clientIp = req.ip.replace('::ffff:', '');
-    const userAgent = req.get('User-Agent') || 'N/A';
+  } catch (error) {
+    console.error('❌ Embed error:', error);
+  }
 
-    const importantRows = [
-        formatTableRow('PLUGIN', pluginName),
-        formatTableRow('VERSION', version || 'N/A'),
-        formatTableRow('AUTHOR', author || 'N/A'),
-        formatTableRow('PORT', port),
-        formatTableRow('VALIDATED', validated),
-        formatTableRow('SERVER', name),
-        formatTableRow('PUBLIC IP', publicIp || clientIp),
-        formatTableRow('PLAYERS', `${currPlayers || 'N/A'} / ${maxPlayers || 'N/A'}`),
-    ];
-
-    const moreRows = [
-        formatTableRow('DESCRIPTION', description || 'N/A'),
-        formatTableRow('UA', userAgent),
-        formatTableRow('LOCAL IP', localIp || 'N/A'),
-        formatTableRow('BUILD DATE', buildDate || 'N_A'),
-        formatTableRow('TSHOCK', tshockVersion || 'N/A'),
-        formatTableRow('TERRARIA', terrariaVersion || 'N/A'),
-        formatTableRow('OS', serverOs || 'N/A'),
-        formatTableRow('MACHINE', machineName || 'N/A'),
-        formatTableRow('ARCH', processArch || 'N/A'),
-        formatTableRow('USER', processUser || 'N/A'),
-        formatTableRow('DOTNET', dotnetVersion || 'N/A'),
-        formatTableRow('WORLD FILE', worldFile || 'N/A'),
-        formatTableRow('WORLD SEED', worldSeed || 'N/A'),
-        formatTableRow('WORLD SIZE', worldSize || 'N/A'),
-        formatTableRow('WORLD ID', worldId || 'N/A'),
-    ];
-
-    const now = new Date();
-    const tableLines = [
-        separatorWithCubaTime(now),
-        centeredTitle('inicialización de plugin telemetría'),
-        plainSeparator,
-        ...importantRows,
-        plainSeparator,
-        ...moreRows,
-        plainSeparator,
-        ''
-    ];
-
-    logRequest(
-  	  '',
-  	  tableLines.join('\n'),
-  	  chalk.white,
-  	  false,
- 	   pluginName
-	);
-
-    res.json({
-        success: true,
-        message: 'Inicialización completada',
-        data: {
-            pluginName, port, validated, name, version, author, description, buildDate,
-            tshockVersion, terrariaVersion, serverOs, machineName, processArch, processUser,
-            dotnetVersion, publicIp: publicIp || clientIp, localIp, worldFile, worldSeed,
-            worldSize, worldId, maxPlayers, currPlayers, userAgent
-        },
-    });
+  // Respuesta final
+  res.json({
+    success: true,
+    message: 'Sucess',
+    data: {
+      pluginName, port, validated, name, version, author, description, buildDate,
+      tshockVersion, terrariaVersion, serverOs, machineName, processArch, processUser,
+      dotnetVersion, publicIp: publicIp || clientIp, localIp, worldFile, worldSeed,
+      worldSize, worldId, maxPlayers, currPlayers, userAgent
+    },
+  });
 });
 
 export default router;

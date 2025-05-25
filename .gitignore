@@ -1,6 +1,7 @@
 DataFiles/*
 logs/*
 node_modules/*
+.env
 
 *.log
 *.logs

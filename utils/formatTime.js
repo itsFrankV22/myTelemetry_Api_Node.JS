@@ -1,4 +1,7 @@
-import { TIME_ZONE } from "../config.js";
+import { configDotenv } from "dotenv";
+
+
+const TIME_ZONE = configDotenv.TIME_ZONE;
 
 export function formatTime() {
     const now = new Date();

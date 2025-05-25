@@ -12,7 +12,7 @@ let keysCache = [];
 function reloadData() {
     keysCache = readKeys();
     pluginsCache = readPlugins();
-    console.log(chalk.yellow('🔄 Datos recargados correctamente.'));
+    console.log(chalk.yellow('🔄 Reloaded Data.'));
 }
 reloadData();
 
@@ -33,43 +33,43 @@ export function startConsoleCommands() {
 
         switch (command) {
             case 'help':
-                console.log(chalk.yellow("\n⌨️ Comandos disponibles:"));
-                console.log(chalk.blue("• 'help'") + chalk.white(" - Muestra esta ayuda."));
-                console.log(chalk.blue("• 'keygen'") + chalk.white(" - Genera una nueva clave para una Herramienta."));
-                console.log(chalk.blue("• 'keylist'") + chalk.white(" - Muestra todas las claves generadas, indicando su información útil."));
-                console.log(chalk.blue("• 'keyremove #'") + chalk.white(" - Marca una clave como REMOVIDA."));
-                console.log(chalk.blue("• 'keyrenew #'") + chalk.white(" - Renueva una clave REMOVIDA o EXPIRADA."));
-                console.log(chalk.blue("• 'pllist'") + chalk.white(" - Lista las Herramientas registradas."));
-                console.log(chalk.blue("• 'pladd'") + chalk.white(" - Agrega una nueva Herramienta."));
-                console.log(chalk.blue("• 'plremove #'") + chalk.white(" - Elimina una Herramienta por número."));
-                console.log(chalk.blue("• 'reload'") + chalk.white(" - Recarga los datos desde disco."));
-                console.log(chalk.blue("• 'exit'") + chalk.white(" - Detiene el Servicio"));
+                console.log(chalk.yellow("\n⌨️ Aviable commands:"));
+                console.log(chalk.blue("• 'help'") + chalk.white(" - Show this text."));
+                console.log(chalk.blue("• 'keygen'") + chalk.white(" - Generate a new key for a Tool."));
+                console.log(chalk.blue("• 'keylist'") + chalk.white(" - Shows all generated keys, indicating their useful information."));
+                console.log(chalk.blue("• 'keyremove #'") + chalk.white(" - Mark a key as REMOVED."));
+                console.log(chalk.blue("• 'keyrenew #'") + chalk.white(" - Renew a REMOVED or EXPIRED key."));
+                console.log(chalk.blue("• 'pllist'") + chalk.white(" - Lists registered Tools."));
+                console.log(chalk.blue("• 'pladd'") + chalk.white(" - Add a new Tool."));
+                console.log(chalk.blue("• 'plremove #'") + chalk.white(" - Delete a Tool by number."));
+                console.log(chalk.blue("• 'reload'") + chalk.white(" - Reload data."));
+                console.log(chalk.blue("• 'exit'") + chalk.white(" - Stop the Service"));
                 break;
 
             case 'keygen':
                 if (pluginsCache.length === 0) {
-                    console.log(chalk.red('❌ No hay Herramientas registradas. Agrega nombres al archivo PL.txt. Usa pladd'));
+                    console.log(chalk.red('❌ There are no registered Tools. Add names to the PL.txt file. Use pladd'));
                     return;
                 }
-                console.log(chalk.yellow('🔢 Selecciona una Herramienta por número:'));
+                console.log(chalk.yellow('🔢 Select a Tool by number:'));
                 pluginsCache.forEach((plugin, index) => {
                     console.log(`${index + 1}. ${plugin}`);
                 });
-                rl.question('Introduce el número de la Herramienta: ', (number) => {
+                rl.question('Enter the Tool number: ', (number) => {
                     const pluginIndex = parseInt(number) - 1;
                     if (
                         isNaN(pluginIndex) ||
                         pluginIndex < 0 ||
                         pluginIndex >= pluginsCache.length
                     ) {
-                        console.log(chalk.red('❌ Número inválido.'));
+                        console.log(chalk.red('❌ Invalid number.'));
                         return;
                     }
                     const pluginName = pluginsCache[pluginIndex];
                     const newKey = generateKey();
                     keysCache.unshift({ key: newKey, pluginName, expired: false, removed: false });
                     saveKeys(keysCache);
-                    console.log(chalk.green(`✅ Nueva clave generada para ${pluginName}: ${newKey}`));
+                    console.log(chalk.green(`✅ New key generated for ${pluginName}: ${newKey}`));
                     logRequest('KeyGen', `key:${newKey} name:${pluginName} status:active`);
                 });
                 break;
@@ -80,10 +80,10 @@ export function startConsoleCommands() {
                 const pageInput = commandArgs[1];
                 const pageNumber = parseInt(pageInput) || 1;
                 if (pageNumber < 1 || pageNumber > totalPages) {
-                    console.log(chalk.red(`❌ Número de página inválido. Elige entre 1 y ${totalPages}.`));
+                    console.log(chalk.red(`❌ Invalid page number. Choose between 1 and ${totalPages}.`));
                     return;
                 }
-                console.log(chalk.yellow(`\n🔑 Claves disponibles (Página ${pageNumber}/${totalPages}):`));
+                console.log(chalk.yellow(`\n🔑 Available keys (Page ${pageNumber}/${totalPages}):`));
                 const reversed = [...keysCache].reverse();
                 const start = (pageNumber - 1) * pageSize;
                 const end = start + pageSize;
@@ -96,20 +96,20 @@ export function startConsoleCommands() {
                         ? chalk.red
                         : chalk.green;
                     const status = k.removed
-                        ? 'REMOVIDA'
+                        ? 'REMOVED'
                         : k.expired
-                        ? 'EXPIRADA'
-                        : 'ACTIVA';
+                        ? 'EXPIRED'
+                        : 'ACTIVE';
                     console.log(
                         chalk.blue(`${displayNumber}.`) +
                             keyColor(` ${k.key}`) +
-                            chalk.white(` (Herramienta: ${k.pluginName}, ${status})`)
+                            chalk.white(` (tool: ${k.pluginName}, ${status})`)
                     );
                 });
                 if (pageNumber < totalPages)
-                    console.log(chalk.green(`\n➡️ Para ver más claves, ingresa 'keylist ${pageNumber + 1}'.`));
+                    console.log(chalk.green(`\n➡️ To see more keys, enter 'keylist ${pageNumber + 1}'.`));
                 else
-                    console.log(chalk.green('\n✅ No hay más páginas disponibles.'));
+                    console.log(chalk.green('\n✅ There are no more pages available.'));
                 break;
             }
 
@@ -117,18 +117,18 @@ export function startConsoleCommands() {
                 const keyNumber = parseInt(commandArgs[1]);
                 const reversed = [...keysCache].reverse();
                 if (isNaN(keyNumber) || keyNumber < 1 || keyNumber > reversed.length) {
-                    console.log(chalk.red(`❌ Número inválido. Introduce un número entre 1 y ${reversed.length}.`));
+                    console.log(chalk.red(`❌ invalid number, type 1 / ${reversed.length}.`));
                     return;
                 }
                 const realIndex = keysCache.length - keyNumber;
                 const keyToRemove = keysCache[realIndex];
                 if (keyToRemove.removed || keyToRemove.expired) {
-                    console.log(chalk.red(`❌ La clave ya está ${keyToRemove.removed ? 'REMOVIDA' : 'EXPIRADA'}.`));
+                    console.log(chalk.red(`❌ the key already ${keyToRemove.removed ? 'REMOVED' : 'EXPIRED'}.`));
                     return;
                 }
                 keyToRemove.removed = true;
                 saveKeys(keysCache);
-                console.log(chalk.green(`✅ La clave "${keyToRemove.key}" ha sido marcada como REMOVIDA.`));
+                console.log(chalk.green(`✅ key "${keyToRemove.key}" has been removed.`));
                 break;
             }
 
@@ -136,31 +136,31 @@ export function startConsoleCommands() {
                 const renewKeyNumber = parseInt(commandArgs[1]);
                 const reversed = [...keysCache].reverse();
                 if (isNaN(renewKeyNumber) || renewKeyNumber < 1 || renewKeyNumber > reversed.length) {
-                    console.log(chalk.red(`❌ Número inválido. Introduce un número entre 1 y ${reversed.length}.`));
+                    console.log(chalk.red(`❌ invalid number, type 1 / ${reversed.length}.`));
                     return;
                 }
                 const realIndex = keysCache.length - renewKeyNumber;
                 const keyToRenew = keysCache[realIndex];
                 if (!keyToRenew.removed && !keyToRenew.expired) {
-                    console.log(chalk.red('❌ La clave ya está ACTIVA.'));
+                    console.log(chalk.red('❌ the key already active.'));
                     return;
                 }
                 keyToRenew.removed = false;
                 keyToRenew.expired = false;
                 saveKeys(keysCache);
-                console.log(chalk.green(`✅ La clave "${keyToRenew.key}" ha sido renovada a ACTIVA.`));
+                console.log(chalk.green(`✅ key "${keyToRenew.key}" has been renewed.`));
                 break;
             }
 
             case 'pladd':
-                rl.question('Introduce el nombre de la nueva Herramienta: ', (toolName) => {
+                rl.question('type name: ', (toolName) => {
                     if (!toolName.trim()) {
-                        console.log(chalk.red('❌ Nombre inválido. Intenta nuevamente.'));
+                        console.log(chalk.red('❌ invalid name.'));
                         return;
                     }
                     const trimmed = toolName.trim();
                     if (pluginsCache.includes(trimmed)) {
-                        console.log(chalk.yellow(`⚠️ La herramienta "${trimmed}" ya está registrada.`));
+                        console.log(chalk.yellow(`⚠️ tool "${trimmed}" already registered.`));
                         return;
                     }
                     pluginsCache.push(trimmed);

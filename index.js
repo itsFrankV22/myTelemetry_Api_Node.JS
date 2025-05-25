@@ -5,6 +5,16 @@ import chalk from 'chalk';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+
+// Discord launcher by .env
+if (process.env.DISCORD_ENABLED === 'true') {
+  import('./Discord/bot.js')
+    .then(bot => bot.startBot?.());
+} else {
+  console.log('Discord bot disabled by settings.');
+}
+
+
 // Mid
 import { limiter } from './middleware/rateLimiter.js';
 
@@ -17,8 +27,8 @@ import { startConsoleCommands } from './commands.js';
 
 // Configs
 const BASE_PATH = path.dirname(fileURLToPath(import.meta.url));
-import { PORT } from './config.js';
-import { SECRET_KEY } from './config.js';
+const PORT = process.env.PORT || 3000;
+const SECRET_KEY = process.env.SECRET_KEY || 'secret_xd'
 
 const app = express();
 app.use(express.json());

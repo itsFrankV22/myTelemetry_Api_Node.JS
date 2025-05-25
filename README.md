@@ -113,8 +113,10 @@ Report:
 }
 ```
 
-Initialize TEST (Not large)
-```http://localhost:8121/initialize/MyPlugin?port=8080&validated=VALIDATED&name=MyServer```
+Initialize TEST
+```link
+http://localhost:8121/initialize/TEST?port=7777&validated=true&name=TerraLatam&version=1.2.3&author=Frank&description=Plugin%20de%20prueba&buildDate=2025-05-25&tshockVersion=4.5.10&terrariaVersion=1.4.4.9&serverOs=Linux&machineName=TLW-Server01&processArch=x64&processUser=tshock-admin&dotnetVersion=8.0&publicIp=190.92.103.45&localIp=192.168.1.100&worldFile=world1.wld&worldSeed=87654321&worldSize=large&worldId=123456&maxPlayers=32&currPlayers=5
+```
 
 report TEST
 ```powershell
@@ -148,4 +150,9 @@ $report = @{
 } | ConvertTo-Json
 
 Invoke-RestMethod -Uri "http://localhost:8121/report" -Method Post -Body $report -ContentType "application/json"
+```
+
+Validation TEST
+```link
+http://localhost:8121/validate/ABC123456789/TEST?port=7777&name=TEST&ip=123.45.67.89
 ```

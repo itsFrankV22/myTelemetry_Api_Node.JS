@@ -7,7 +7,7 @@ const blockedIps = new Map();
 export const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 10,
-    message: { message: '❌ DEMASIADOS INTENTOS!' },
+    message: { message: '❌ TOO MANY ATTEMPTS!' },
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
@@ -16,14 +16,14 @@ export const limiter = rateLimit({
             blockedIps.set(clientIp, true);
             logRequest(
                 'RateLimit',
-                `IP: ${clientIp} ha sido bloqueada por exceder el límite de solicitudes.`,
+                `IP: ${clientIp} has been blocked for exceeding the request limit.`,
                 chalk.red
             );
             setTimeout(() => {
                 blockedIps.delete(clientIp);
                 logRequest(
                     'RateLimit',
-                    `IP: ${clientIp} ha sido eliminada del bloqueo y puede realizar solicitudes nuevamente.`,
+                    `IP: ${clientIp} has been removed from the block and can make requests again.`,
                     chalk.green
                 );
             }, 5 * 60 * 1000);
