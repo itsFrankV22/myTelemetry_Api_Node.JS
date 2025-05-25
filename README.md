@@ -85,7 +85,7 @@ Report:
   "tshockVersion": "5.2.0.0",
   "terrariaVersion": "v1.4.4.9",
   "publicIp": "190.92#####",
-  "localIp": "192.168#####",                # This is saved in different {timeStamp}.json to handle it externally
+  "localIp": "192.168#####",
   "serverOs": "Windows Server 2022",
   "machineName": "test-machine",
   "processArch": "X64",
