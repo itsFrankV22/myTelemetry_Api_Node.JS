@@ -1,5 +1,5 @@
 # myTelemetry_Api_Node.JS
-I leave it open source so people can see that I don't collect extra data. If you want to make a pull, do it!
+I leave it open source so people can see that I don't collect extra data. If you want to make a PR, do it!
 
 - Telemetry: Receive information about plugin initialization, where it runs and much more information, receive plugin error reports and save them in a specific folder with each report and plugin order
 - Validation: It has a plugin validation system using single-use keys, the latter I do not support, you must program it yourself, you save and encrypt your plugin validation when it receives `true`
