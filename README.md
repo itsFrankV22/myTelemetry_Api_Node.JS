@@ -1,76 +1,165 @@
-# myTelemetry_Api_Node.JS
-I leave it open source so people can see that I don't collect extra data. If you want to make a PR, do it!
+# tShock Plugin Telemetry API (Node.js)
 
-- Telemetry: Receive information about plugin initialization, where it runs and much more information, receive plugin error reports and save them in a specific folder with each report and plugin order
-- Validation: It has a plugin validation system using single-use keys, the latter I do not support, you must program it yourself, you save and encrypt your plugin validation when it receives `true`
+**Open Source Telemetry & Error Reporting Backend for tShock Plugins**  
+*I leave it open source so people can see that I don't collect extra data. If you want to make a pull request, do it!*
 
 ---
 
-Just add the `Telemetry.cs` class and initialize it, set your IP and you're done.
+## Table of Contents
 
-Initialize like this
-```cs
-    // Yep
-    private int serverPort;
+- [Project Status](#project-status)
+- [Overview](#overview)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Endpoints](#endpoints)
+- [Usage](#usage)
+  - [Plugin Integration](#plugin-integration)
+  - [Initialization Example](#initialization-example)
+  - [Error Reporting Example](#error-reporting-example)
+  - [Validation Example](#validation-example)
+- [Data Structure](#data-structure)
+- [Console Commands](#console-commands)
+- [Development & Contribution](#development--contribution)
+- [Planned & In Progress](#planned--in-progress)
+- [License](#license)
 
-        // Initialize
-        serverPort = TShock.Config.Settings.ServerPort;
-        Telemetry.Start(this);
+---
+
+## Project Status
+
+🚧 **This project is under active development.**  
+- The backend API is functional for collecting plugin telemetry and error reports.
+- The web frontend for visualizing data is **not implemented yet**.
+- Multi-language support is planned.
+- **Pull Requests are welcome!**  
+  See [Development & Contribution](#development--contribution) for ideas.
+
+---
+
+## Overview
+
+This Node.js service acts as a telemetry and error reporting backend for [tShock](https://tshock.co/) plugins.  
+It receives information about plugin initialization, runtime environment, validation results, and error reports from plugins, and stores them in organized folders for later review or processing.
+
+**Why?**  
+- To help plugin authors debug their plugins in the wild.
+- To provide transparency: No extra or sensitive data is collected.
+- To allow server owners to see what telemetry is sent.
+
+---
+
+## Features
+
+- **Telemetry Reception:**  
+  Receives and stores plugin initialization data, including environment, server, and world info.
+
+- **Error Reporting:**  
+  Receives and archives error reports from plugins, including stack traces and contextual info.
+
+- **Plugin Validation System:**  
+  Supports single-use validation keys for plugins (key management is up to the user or another system).
+
+- **Console Commands:**  
+  Local management commands for keys and plugin registration.
+
+- **Discord Integration:**  
+  (If enabled) Sends notifications to Discord channels for important events (initialization, validation, errors).
+
+- **Open & Transparent:**  
+  All code and telemetry formats are public.
+
+---
+
+## How It Works
+
+- Plugins (usually in C#) integrate a small client (`Telemetry.cs`).
+- On startup and on errors, plugins send HTTP requests to this API with detailed info.
+- This API stores the reports in organized folders and can notify Discord if configured.
+
+---
+
+## Endpoints
+
+All routes expect and return JSON (unless otherwise noted).
+
+### `GET /initialize/:pluginName`
+
+Registers a plugin initialization.
+
+**Query parameters:**
+- `port` (required)
+- `validated` (required)
+- `name` (required): Server or config name
+- `version`, `author`, `description`, `buildDate`
+- `tshockVersion`, `terrariaVersion`
+- `serverOs`, `machineName`, `processArch`, `processUser`, `dotnetVersion`
+- `publicIp`, `localIp`
+- `worldFile`, `worldSeed`, `worldSize`, `worldId`
+- `maxPlayers`, `currPlayers`
+
+> **Note**: The plugin must set the correct API server IP in `Telemetry.cs`.
+
+---
+
+### `POST /report`
+
+Receives an error report from a plugin.
+
+**Body:**  
+A JSON object containing:
+- Plugin info (`plugin`, `pluginVersion`, `pluginAuthor`, `pluginDescription`, etc.)
+- Server & world info
+- Error message & stack trace
+- Environment/context details
+
+---
+
+### `GET /validate/:key/:pluginName`
+
+Validates a plugin key (for one-time plugin validation).
+
+**Query parameters:**
+- `port`, `name`, `ip` (all required)
+- Any extra data
+
+**Response:**  
+- `{ valid: true|false, message: "...", extras: { ... } }`
+
+---
+
+## Usage
+
+### Plugin Integration
+
+1. **Integrate the C# client (`Telemetry.cs`) in your tShock plugin.**
+2. Set the API server IP in your code.
+3. On initialization, call the API's `/initialize` route.
+4. On error, send a POST to `/report` with error details.
+
+#### Initialization Example (C#)
+
+```csharp
+private int serverPort;
+
+// Initialize
+serverPort = TShock.Config.Settings.ServerPort;
+Telemetry.Start(this);
 ```
 
-To report, you must always see in which process you run it asynchronous or synchronous, you can lock your server
-```cs
-// Report
+#### Error Reporting Example (C#)
+
+```csharp
+// Report error
 Telemetry.Report(ex);
 ```
 
----
+#### Example Initialization Request
 
-> In the `Telemetry.cs` class you must make some changes, but mainly you must establish the IP of the server where you run your node.js, which will receive Initialize and reports
-
-- The Server that opens the plugin sends a lot of data via HTTP, so check that any proxy or input limiter could cause problems
-- If you want to contribute I would greatly appreciate it.
-
-> [!NOTE]
-> The website is in progress, it doesn't work yet, there I want to show data and things about the plugins, latest errors and total list, graphs etc, but I need help with that ;)
-
----
-
-# Examples:
-
-Initialize:
-```bash
-──────────────────────[ 8:09:34 PM ]──────────────────────  # Adjustable Time Zone
-           INICIALIZACIÓN DE PLUGIN TELEMETRÍA              # Sorry, my primary language is Spanish, This will have languages ​​in the future, HELP ME!          
-──────────────────────────────────────────────────────────
-PLUGIN          : Example
-VERSION         : 1.0.0
-AUTHOR          : FrankV22
-PORT            : 1234
-VALIDATED       : NOT_VALIDATED / VALIDATED                 # This is whether you want the plugin to have a validation or something, it's up to you.
-SERVER          : configName_worldName
-PUBLIC IP       : 1.2.3.4
-PLAYERS         : N/A / N/A
-──────────────────────────────────────────────────────────
-DESCRIPTION     : N/A                                        # All this is filled in, I'm too lazy to give examples
-UA              : N/A
-LOCAL IP        : N/A
-BUILD DATE      : N_A
-TSHOCK          : N/A
-TERRARIA        : N/A
-OS              : N/A
-MACHINE         : N/A
-ARCH            : N/A
-USER            : N/A
-DOTNET          : N/A
-WORLD FILE      : N/A
-WORLD SEED      : N/A
-WORLD SIZE      : N/A
-WORLD ID        : N/A
-──────────────────────────────────────────────────────────
+```http
+GET http://localhost:8121/initialize/YourPlugin?port=7777&validated=true&name=MyServer&version=1.0.0&author=FrankV22
 ```
 
-Report:
+#### Example Error Report (POST /report)
 
 ```json
 {
@@ -78,7 +167,7 @@ Report:
   "pluginVersion": "3.1.1",
   "pluginAuthor": "FrankV22, Soofa, ???",
   "pluginDescription": "Show Item Decoration and More!!!",
-  "pluginBuildDate": "2025-05-23T17:22:1####",
+  "pluginBuildDate": "2025-05-23T17:22:10",
   "pluginLocation": "C:\\tshock\\plugins\\ItemDecoration.dll",
   "port": 7777,
   "serverName": "TestServer",
@@ -86,73 +175,85 @@ Report:
   "worldSeed": "superseed",
   "worldSize": "8401x2401",
   "worldId": 42,
-  "tshockVersion": "5.2.0.0",
-  "terrariaVersion": "v1.4.4.9",
-  "publicIp": "190.92#####",
-  "localIp": "192.168#####",
-  "serverOs": "Windows Server 2022",
-  "machineName": "test-machine",
-  "processArch": "X64",
-  "processUser": "tshock",
-  "dotnetVersion": ".NET 6.0.36",
-  "nameParameter": "TestServer_MyWorld",
-  "maxPlayers": 8,
-  "currPlayers": 2,
-  "osPlatform": "Windows",
-  "osDescription": "Microsoft Windows NT 10.0.22621.0",
-  "sysUptime": "01.12:45:23",
-  "userDomain": "MYDOMAIN",
-  "userSid": "S-1-5-21-00000000-00000000-0000#########",
-  "currentDir": "C:\\tshock",
-  "envPath": "C:\\Windows\\System32;C:\\Windows",
-  "userGroups": "tshock,Administrators",
+  "publicIp": "190.92.103.45",
+  "localIp": "192.168.1.100",
   "message": "Simulated NullReferenceException: Object reference not set to an instance of an object.",
-  "stackTrace": "at ItemDecoration.Plugin.OnPlayerChat(PlayerChatEventArgs args)`nat TShockAPI.Hooks.PlayerHooks.InvokePlayerChat(...)",
-  "time": "2025-05-24T13:####",
-  "userAgent": "tshock-plugin/3.1.1 (Windows NT ##.0####.0; x##)"
+  "stackTrace": "at ItemDecoration.Plugin.OnPlayerChat(PlayerChatEventArgs args)\nat TShockAPI.Hooks.PlayerHooks.InvokePlayerChat(...)",
+  "time": "2025-05-24T13:00:00",
+  "userAgent": "tshock-plugin/3.1.1 (Windows NT 10.0; x64)"
 }
 ```
 
-Initialize TEST
-```link
-http://localhost:8121/initialize/TEST?port=7777&validated=true&name=TerraLatam&version=1.2.3&author=Frank&description=Plugin%20de%20prueba&buildDate=2025-05-25&tshockVersion=4.5.10&terrariaVersion=1.4.4.9&serverOs=Linux&machineName=TLW-Server01&processArch=x64&processUser=tshock-admin&dotnetVersion=8.0&publicIp=190.92.103.45&localIp=192.168.1.100&worldFile=world1.wld&worldSeed=87654321&worldSize=large&worldId=123456&maxPlayers=32&currPlayers=5
+#### Validation Example
+
+```http
+GET http://localhost:8121/validate/ABC123456789/YourPlugin?port=7777&name=YourPlugin&ip=123.45.67.89
 ```
 
-report TEST
-```powershell
-$report = @{
-    plugin = "TEST"
-    pluginVersion = "###"
-    pluginAuthor = "FrankV22"
-    port = 7777
-    serverName = "MyServer"
-    publicIp = "190.16####"
-    world = "World1"
-    currPlayers = 3
-    maxPlayers = 8
-    tshockVersion = "5.2.0.0"
-    terrariaVersion = "1.4.4.9"
-    serverOs = "## ###er ###2"
-    machineName = "my-machine"
-    processArch = "x64"
-    processUser = "tshock"
-    dotnetVersion = "6.0.#6"
-    worldSeed = "abc123"
-    worldSize = "840#x24#"
-    worldId = 42
-    localIp = "192.168####"
-    pluginDescription = "Particle effects plugin"
-    pluginBuildDate = "2025-05-25T15######"
-    userAgent = "tshock-plugin/2.0.0 (Windows NT 10.0; x6##)"
-    message = "Simulated error: NullReferenceException"
-    stackTrace = "at PlayerParticles.Plugin.OnPlayerChat(PlayerChatEventArgs args)`n at TShockAPI.Hooks.PlayerHooks.InvokePlayerChat(...)"
-    nameParameter = "MyServer_World1"
-} | ConvertTo-Json
+---
 
-Invoke-RestMethod -Uri "http://localhost:8121/report" -Method Post -Body $report -ContentType "application/json"
-```
+## Data Structure
 
-Validation TEST
-```link
-http://localhost:8121/validate/ABC123456789/TEST?port=7777&name=TEST&ip=123.45.67.89
-```
+Reports and initialization data are saved under `DataFiles/`:
+
+- `DataFiles/ServerReports/`: Error reports organized by plugin & server.
+- `DataFiles/Logs/`: Console logs.
+- `DataFiles/keys.txt`: Validation key database.
+- `DataFiles/PL.txt`: Registered plugins.
+
+---
+
+## Console Commands
+
+The backend exposes a CLI for local management (run in your server terminal):
+
+- `keygen`: Generate a new validation key.
+- `keylist`: List all keys.
+- `keyrm`: Remove a key.
+- `keyrenew`: Renew a key.
+- `pladd`: Register a plugin/tool.
+- `pllist`: List registered plugins.
+
+---
+
+## Development & Contribution
+
+### Local setup
+
+1. Clone the repo.
+2. `npm install`
+3. `npm start`
+
+### Contributing
+
+- **PRs are welcome!**  
+  Anything that improves documentation, adds features, or implements pending TODOs is appreciated.
+- Please keep the project open, simple, and privacy-respecting.
+
+### Ideas for PRs
+
+- Implement the web frontend for browsing telemetry and error reports (`public/` is just a placeholder!).
+- Multi-language support for console and web.
+- More robust key management and UI.
+- Improve Discord notifications (configurable, more details).
+- Add tests and CI.
+
+---
+
+## Planned & In Progress
+
+- **Web dashboard:** The frontend web interface for browsing plugin data and reports is not implemented yet.  
+  _Want to help? See `public/index.html` and open a PR!_
+- **Multi-language support:** Currently only English/Spanish in code and logs. Plans to allow users to select language.
+- **Better plugin key validation:** Right now, one-time keys are supported but not managed via web.
+- **More detailed documentation and examples.**
+
+---
+
+## License
+
+MIT License
+
+---
+
+*If you have any questions, want to contribute, or have feature requests, open an issue or pull request!*
