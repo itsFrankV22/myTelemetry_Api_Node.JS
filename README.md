@@ -108,3 +108,6 @@ Report:
   "userAgent": "tshock-plugin/3.1.1 (Windows NT ##.0####.0; x##)"
 }
 ```
+
+Initialize TEST (Not large)
+```http://localhost:8121/initialize/MyPlugin?port=8080&validated=VALIDATED&name=MyServer```

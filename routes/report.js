@@ -7,12 +7,10 @@ import { logPluginReport } from '../utils/reportLogger.js';
 const SERVER_REPORTS_PATH = path.join(process.cwd(), 'DataFiles', 'ServerReports');
 const router = express.Router();
 
-// --- Helper para limpiar nombres ---
 function sanitizeName(str) {
   return String(str).replace(/[^a-zA-Z0-9_\-:.]/g, "_");
 }
 
-// --- Helpers para formateo de logs ---
 function colorLabel(label) {
   return chalk.bold.cyan(label);
 }
@@ -23,7 +21,6 @@ function plainSeparator() {
   return '-'.repeat(58);
 }
 function separatorWithCubaTime(now) {
-  // Ajusta a Cuba UTC-5
   const cubaTime = new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString().replace('T', ' ').replace(/\..+/, '');
   return chalk.bgBlueBright.black(' ' + cubaTime + ' ') + ' ' + '-'.repeat(40);
 }
@@ -46,7 +43,6 @@ function formatErrorSection(message, stack, width) {
   return rows;
 }
 
-// --- Endpoint principal /report ---
 router.post('/report', (req, res) => {
     const report = req.body;
 
@@ -65,7 +61,6 @@ router.post('/report', (req, res) => {
 
     fs.writeFileSync(filePath, JSON.stringify(report, null, 2), 'utf-8');
 
-    // --- Log formatting as before ---
     const now = new Date();
 
     const importantRows = [
@@ -112,10 +107,8 @@ router.post('/report', (req, res) => {
         ''
     ];
 
-    // Imprime el log en consola (color)
     console.log(tableLines.join('\n'));
 
-    // Guarda el log plano (sin color) en archivo por plugin/día
     logPluginReport(pluginNameForLog, tableLines.join('\n'));
 
     res.status(200).json({ ok: true, path: filePath });

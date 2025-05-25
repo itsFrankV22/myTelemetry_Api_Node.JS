@@ -31,7 +31,6 @@ app.use(
 
 app.use(limiter);
 
-// Rutas principales
 app.use(initializeRoute);
 app.use(reportRoute);
 
@@ -40,5 +39,5 @@ server.listen(PORT, () => {
     console.log(chalk.green(`🌐 Servidor iniciado en http://localhost:${PORT}`));
 });
 
-// Consola
+// Console
 startConsoleCommands();

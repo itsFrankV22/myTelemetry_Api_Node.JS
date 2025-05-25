@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
+import { DATA_FOLDER } from '../config.js';
 
-const LOGS_FOLDER = path.join(process.cwd(), 'logs');
+const LOGS_FOLDER = path.join(DATA_FOLDER, 'ReportsLog');
 
 function ensurePluginLogFolder(pluginName) {
     const pluginFolder = path.join(LOGS_FOLDER, pluginName);

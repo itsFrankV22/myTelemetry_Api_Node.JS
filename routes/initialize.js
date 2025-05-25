@@ -5,7 +5,6 @@ import { logRequest } from '../utils/log.js';
 const router = express.Router();
 
 function colorLabel(label) {
-    // Elige colores diferentes para los labels principales
     switch (label.trim()) {
         case 'PLUGIN': return chalk.cyan(label);
         case 'VERSION': return chalk.yellow(label);
@@ -34,7 +33,6 @@ function colorLabel(label) {
     }
 }
 function colorValue(label, value) {
-    // Asigna colores a valores especiales o déjalos blancos
     if (value === 'N/A' || value === 'N_A') return chalk.gray(value);
     if (label.includes('PORT') || label === 'PLAYERS') return chalk.yellowBright(value);
     if (label === 'VALIDATED') return value === 'VALIDATED' ? chalk.greenBright(value) : chalk.redBright(value);
@@ -46,7 +44,6 @@ function formatTableRow(label, value, pad = 15) {
 }
 
 function getCubaTimeString(date = new Date()) {
-    // UTC-4 = 240 minutos
     const cubaDate = new Date(date.getTime() - (date.getTimezoneOffset() + 240) * 60000);
     return cubaDate.toLocaleTimeString('en-US', { hour12: true });
 }
@@ -91,7 +88,6 @@ router.get('/initialize/:pluginName', (req, res) => {
     const clientIp = req.ip.replace('::ffff:', '');
     const userAgent = req.get('User-Agent') || 'N/A';
 
-    // Datos principales
     const importantRows = [
         formatTableRow('PLUGIN', pluginName),
         formatTableRow('VERSION', version || 'N/A'),
@@ -103,7 +99,6 @@ router.get('/initialize/:pluginName', (req, res) => {
         formatTableRow('PLAYERS', `${currPlayers || 'N/A'} / ${maxPlayers || 'N/A'}`),
     ];
 
-    // Datos adicionales
     const moreRows = [
         formatTableRow('DESCRIPTION', description || 'N/A'),
         formatTableRow('UA', userAgent),
@@ -122,7 +117,6 @@ router.get('/initialize/:pluginName', (req, res) => {
         formatTableRow('WORLD ID', worldId || 'N/A'),
     ];
 
-    // Tabla alineada, con separador y hora de Cuba centrada
     const now = new Date();
     const tableLines = [
         separatorWithCubaTime(now),
@@ -139,8 +133,8 @@ router.get('/initialize/:pluginName', (req, res) => {
   	  '',
   	  tableLines.join('\n'),
   	  chalk.white,
-  	  false, // No timestamp global (solo tu hora centrada)
- 	   pluginName // <---- aquí el log irá a logs/[pluginName]/console-YYYY-MM-DD.log
+  	  false,
+ 	   pluginName
 	);
 
     res.json({

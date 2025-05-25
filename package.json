@@ -4,8 +4,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "node --watch index.js",
+    "start": "node index.js",
+    "build": "npm i && npm test"
   },
   "keywords": [],
   "author": "",
