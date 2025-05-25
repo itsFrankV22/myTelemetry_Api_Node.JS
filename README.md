@@ -36,19 +36,19 @@ Telemetry.Report(ex);
 
 Initialize:
 ```bash
-──────────────────────[ 8:09:34 PM ]──────────────────────
-           INICIALIZACIÓN DE PLUGIN TELEMETRÍA  # Sorry, my primary language is Spanish, This will have languages ​​in the future, HELP ME!          
+──────────────────────[ 8:09:34 PM ]──────────────────────  # Adjustable Time Zone
+           INICIALIZACIÓN DE PLUGIN TELEMETRÍA              # Sorry, my primary language is Spanish, This will have languages ​​in the future, HELP ME!          
 ──────────────────────────────────────────────────────────
 PLUGIN          : Example
 VERSION         : 1.0.0
 AUTHOR          : FrankV22
 PORT            : 1234
-VALIDATED       : NOT_VALIDATED / VALIDATED # This is whether you want the plugin to have a validation or something, it's up to you.
+VALIDATED       : NOT_VALIDATED / VALIDATED                 # This is whether you want the plugin to have a validation or something, it's up to you.
 SERVER          : configName_worldName
 PUBLIC IP       : 1.2.3.4
 PLAYERS         : N/A / N/A
 ──────────────────────────────────────────────────────────
-DESCRIPTION     : N/A    # All this is filled in, I'm too lazy to give examples
+DESCRIPTION     : N/A                                        # All this is filled in, I'm too lazy to give examples
 UA              : N/A
 LOCAL IP        : N/A
 BUILD DATE      : N_A
