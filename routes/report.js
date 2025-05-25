@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import { logPluginReport } from '../utils/reportLogger.js';
+import { formatTime } from '../utils/formatTime.js';
 
 const SERVER_REPORTS_PATH = path.join(process.cwd(), 'DataFiles', 'ServerReports');
 const router = express.Router();
@@ -20,10 +21,16 @@ function colorValue(value) {
 function plainSeparator() {
   return '-'.repeat(58);
 }
-function separatorWithCubaTime(now) {
-  const cubaTime = new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString().replace('T', ' ').replace(/\..+/, '');
-  return chalk.bgBlueBright.black(' ' + cubaTime + ' ') + ' ' + '-'.repeat(40);
+
+function separatorWithTime(now) {
+  const width = 58;
+  const cubaTime = `[${formatTime(now)}]`;
+  const totalPad = width - cubaTime.length;
+  const padLeft = Math.floor(totalPad / 2);
+  const padRight = totalPad - padLeft;
+  return chalk.bgBlueBright.black('-'.repeat(padLeft) + cubaTime + '-'.repeat(padRight));
 }
+
 function centeredTitle(text) {
   const width = 58;
   const pad = Math.max(0, Math.floor((width - text.length) / 2));
@@ -51,7 +58,7 @@ router.post('/report', (req, res) => {
     const name = sanitizeName(report.nameParameter || 'N_A');
     const pluginNameForLog = (report.plugin || 'unknown_plugin').replace(/[^a-zA-Z0-9_\-]/g, '_');
 
-    const folderName = `${ip}:${port}_${name}`;
+    const folderName = `${ip}_${port}_${name}`;
     const folderPath = path.join(SERVER_REPORTS_PATH, folderName);
 
     fs.mkdirSync(folderPath, { recursive: true });
@@ -93,7 +100,7 @@ router.post('/report', (req, res) => {
     const errorSection = formatErrorSection(report.message || 'N/A', report.stackTrace || '', 58);
 
     const tableLines = [
-        separatorWithCubaTime(now),
+        separatorWithTime(now),
         centeredTitle('reporte de error de plugin'),
         plainSeparator(),
         ...importantRows,

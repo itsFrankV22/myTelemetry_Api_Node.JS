@@ -111,3 +111,37 @@ Report:
 
 Initialize TEST (Not large)
 ```http://localhost:8121/initialize/MyPlugin?port=8080&validated=VALIDATED&name=MyServer```
+
+report TEST
+```powershell
+$report = @{
+    plugin = "TEST"
+    pluginVersion = "###"
+    pluginAuthor = "FrankV22"
+    port = 7777
+    serverName = "MyServer"
+    publicIp = "190.16####"
+    world = "World1"
+    currPlayers = 3
+    maxPlayers = 8
+    tshockVersion = "5.2.0.0"
+    terrariaVersion = "1.4.4.9"
+    serverOs = "## ###er ###2"
+    machineName = "my-machine"
+    processArch = "x64"
+    processUser = "tshock"
+    dotnetVersion = "6.0.#6"
+    worldSeed = "abc123"
+    worldSize = "840#x24#"
+    worldId = 42
+    localIp = "192.168####"
+    pluginDescription = "Particle effects plugin"
+    pluginBuildDate = "2025-05-25T15######"
+    userAgent = "tshock-plugin/2.0.0 (Windows NT 10.0; x6##)"
+    message = "Simulated error: NullReferenceException"
+    stackTrace = "at PlayerParticles.Plugin.OnPlayerChat(PlayerChatEventArgs args)`n at TShockAPI.Hooks.PlayerHooks.InvokePlayerChat(...)"
+    nameParameter = "MyServer_World1"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8121/report" -Method Post -Body $report -ContentType "application/json"
+```

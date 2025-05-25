@@ -5,17 +5,20 @@ import chalk from 'chalk';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Mid
 import { limiter } from './middleware/rateLimiter.js';
-import { logRequest } from './utils/log.js';
 
+// Routes
 import initializeRoute from './routes/initialize.js';
 import reportRoute from './routes/report.js';
+import validateRoute from './routes/validate.js'
 
 import { startConsoleCommands } from './commands.js';
 
-// Paths y configuración
+// Configs
 const BASE_PATH = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 8121;
+import { PORT } from './config.js';
+import { SECRET_KEY } from './config.js';
 
 const app = express();
 app.use(express.json());
@@ -23,7 +26,7 @@ app.use(express.static(path.join(BASE_PATH, 'public')));
 
 app.use(
   session({
-    secret: 'your-secret-key',
+    secret: SECRET_KEY,
     resave: false,
     saveUninitialized: false,
   })
@@ -31,12 +34,14 @@ app.use(
 
 app.use(limiter);
 
+// using routes
 app.use(initializeRoute);
 app.use(reportRoute);
+app.use(validateRoute);
 
 const server = http.createServer(app);
 server.listen(PORT, () => {
-    console.log(chalk.green(`🌐 Servidor iniciado en http://localhost:${PORT}`));
+    console.log(chalk.green(`>> 🌐 http://localhost:${PORT}`));
 });
 
 // Console

@@ -18,7 +18,7 @@ reloadData();
 
 export function startConsoleCommands() {
     // ASCII art (opcional)
-    console.log(chalk.cyan('== Servidor de Validación de Plugins =='));
+    console.log(chalk.cyan('Loagind commands...'));
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -165,16 +165,16 @@ export function startConsoleCommands() {
                     }
                     pluginsCache.push(trimmed);
                     fs.appendFileSync(PL_FILE, `${trimmed}\n`);
-                    console.log(chalk.green(`✅ Herramienta "${trimmed}" agregada exitosamente.`));
-                    logRequest('PLAdd', `Herramienta: ${trimmed} agregada.`, chalk.blue);
+                    console.log(chalk.green(`✅ Tool "${trimmed}" added.`));
+                    logRequest('PLAdd', `Tool: ${trimmed} added.`, chalk.blue);
                 });
                 break;
 
             case 'pllist':
                 if (pluginsCache.length === 0) {
-                    console.log(chalk.red('❌ No hay Herramientas registradas en PL.txt.'));
+                    console.log(chalk.red('❌ There are no Tools registered in PL.txt.'));
                 } else {
-                    console.log(chalk.yellow('📋 Herramientas Registradas:'));
+                    console.log(chalk.yellow('📋 Tools registered:'));
                     pluginsCache.forEach((plugin, index) => {
                         console.log(`${index + 1}. ${plugin}`);
                     });
@@ -183,19 +183,19 @@ export function startConsoleCommands() {
 
             case 'plremove': {
                 if (pluginsCache.length === 0) {
-                    console.log(chalk.red('❌ No hay Herramientas registradas para eliminar.'));
+                    console.log(chalk.red('❌ There are no Tools registered in PL.txt.'));
                     return;
                 }
                 const toolNumber = parseInt(commandArgs[1]);
                 if (isNaN(toolNumber) || toolNumber < 1 || toolNumber > pluginsCache.length) {
-                    console.log(chalk.red(`❌ Número inválido. Introduce un número entre 1 y ${pluginsCache.length}.`));
+                    console.log(chalk.red(`❌ Invalid number. Enter a number between 1 and ${pluginsCache.length}.`));
                     return;
                 }
                 const toolToRemove = pluginsCache[toolNumber - 1];
                 pluginsCache.splice(toolNumber - 1, 1);
                 fs.writeFileSync(PL_FILE, pluginsCache.join('\n'));
-                console.log(chalk.green(`✅ Herramienta "${toolToRemove}" eliminada exitosamente.`));
-                logRequest('PLRemove', `Herramienta: ${toolToRemove} eliminada.`, chalk.magenta);
+                console.log(chalk.green(`✅ Tool "${toolToRemove}" removed.`));
+                logRequest('PLRemove', `Tool: ${toolToRemove} removed.`, chalk.magenta);
                 break;
             }
 
@@ -204,14 +204,14 @@ export function startConsoleCommands() {
                 break;
 
             case 'exit':
-                console.log(chalk.red('🛑 Cerrando servidor...'));
+                console.log(chalk.red('🛑 Closing...'));
                 process.exit(0);
                 break;
 
             default:
                 console.log(
                     chalk.red(
-                        "❌ Comando no reconocido. Usa 'help' para ver los comandos disponibles."
+                        "❌ Unknow command, try /help"
                     )
                 );
         }

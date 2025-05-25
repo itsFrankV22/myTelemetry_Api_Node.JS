@@ -47,6 +47,7 @@ function getCubaTimeString(date = new Date()) {
     const cubaDate = new Date(date.getTime() - (date.getTimezoneOffset() + 240) * 60000);
     return cubaDate.toLocaleTimeString('en-US', { hour12: true });
 }
+
 function centerText(text, width, filler = ' ') {
     const pad = Math.max(width - text.length, 0);
     const left = Math.floor(pad/2);
