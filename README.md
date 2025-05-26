@@ -5,6 +5,11 @@
 
 ---
 
+### Images:
+![Imagen de WhatsApp 2025-05-26 a las 15 47 00_b72ee1e8](https://github.com/user-attachments/assets/86fa6567-f5e5-40c6-a05f-f65d8f747cff) ![Imagen de WhatsApp 2025-05-26 a las 15 47 48_8e07e445](https://github.com/user-attachments/assets/716d3343-edc7-4dda-a757-b546c30fec14)
+
+---
+
 ## Table of Contents
 
 - [Project Status](#project-status)
