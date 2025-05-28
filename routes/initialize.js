@@ -182,10 +182,7 @@ router.get('/initialize/:pluginName', async (req, res) => {
   .setTimestamp()
   .setFooter({ text: 'FV Studios', iconURL: 'https://i.imgur.com/YP5kVNk_d.webp?maxwidth=760&fidelity=grand' });
 
-    const channel = await client.channels.fetch(process.env.INITIALIZE_CHANNEL_ID);
-
-    // Discord message
-if (process.env.DISCORD_ENABLED === 'true') {
+    if (process.env.DISCORD_ENABLED === 'true') {
   try {
     const { default: client } = await import('../Discord/bot.js');
     const channel = await client.channels.fetch(process.env.INITIALIZE_CHANNEL_ID);
