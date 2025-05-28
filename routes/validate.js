@@ -53,7 +53,7 @@ router.get('/validate/:key/:pluginName', async (req, res) => {
       const { default: client } = await import('../Discord/bot.js');
       const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
       if (channel?.isTextBased()) {
-        await channel.send({ embeds: [errorEmbed] });
+        await channel.send({ embeds: [validationEmbed] });
       }
     } catch (err) {
       console.error('Embed Error', err);
