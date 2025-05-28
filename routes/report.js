@@ -136,16 +136,20 @@ router.post('/report', async (req, res) => {
     .setFooter({ text: 'FV Studios', iconURL: 'https://i.imgur.com/YP5kVNk_d.webp?maxwidth=760&fidelity=grand' });
 
   if (process.env.DISCORD_ENABLED === 'true') {
-    try {
-      const { default: client } = await import('../Discord/bot.js');
-      const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
-      if (channel?.isTextBased()) {
-        await channel.send({ embeds: [errorEmbed] });
-      }
-    } catch (err) {
-      console.error('Embed Error', err);
+  try {
+    const { default: client } = await import('../Discord/bot.js');
+
+    // Esperar si el bot aún no está listo
+    if (!client.isReady()) await new Promise(resolve => client.once('ready', resolve));
+
+    const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
+    if (channel?.isTextBased()) {
+      await channel.send({ embeds: [errorEmbed] });
     }
+  } catch (err) {
+    console.error('Embed Error', err);
   }
+}
 
   res.status(200).json({ ok: true, path: filePath });
 });

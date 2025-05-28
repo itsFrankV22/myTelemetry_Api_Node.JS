@@ -184,17 +184,20 @@ router.get('/initialize/:pluginName', async (req, res) => {
 
     const channel = await client.channels.fetch(process.env.INITIALIZE_CHANNEL_ID);
 
-    if (process.env.DISCORD_ENABLED === 'true') {
-    try {
-      const { default: client } = await import('../Discord/bot.js');
-      const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
-      if (channel?.isTextBased()) {
-        await channel.send({ embeds: [errorEmbed] });
-      }
-    } catch (err) {
-      console.error('Embed Error', err);
+    // Discord message
+if (process.env.DISCORD_ENABLED === 'true') {
+  try {
+    const { default: client } = await import('../Discord/bot.js');
+    const channel = await client.channels.fetch(process.env.INITIALIZE_CHANNEL_ID);
+    
+    if (channel?.isTextBased()) {
+      await channel.send({ embeds: [embed] });
     }
+  } catch (err) {
+    console.error('❌ Embed error:', err);
   }
+}
+
 
   } catch (error) {
     console.error('❌ Embed error:', error);
