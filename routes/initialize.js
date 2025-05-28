@@ -3,7 +3,6 @@ import chalk from 'chalk';
 import { logRequest } from '../utils/log.js';
 import dotenv from 'dotenv';
 import { EmbedBuilder } from 'discord.js';
-import client from '../Discord/bot.js';
 
 dotenv.config();
 const router = express.Router();
@@ -185,12 +184,17 @@ router.get('/initialize/:pluginName', async (req, res) => {
 
     const channel = await client.channels.fetch(process.env.INITIALIZE_CHANNEL_ID);
 
-    if (channel && channel.isTextBased()) {
-      await channel.send({ embeds: [embed] });
-      console.log('✅ Embed sended');
-    } else {
-      console.warn('⚠️ Invalid Channel');
+    if (process.env.DISCORD_ENABLED === 'true') {
+    try {
+      const { default: client } = await import('../Discord/bot.js');
+      const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
+      if (channel?.isTextBased()) {
+        await channel.send({ embeds: [errorEmbed] });
+      }
+    } catch (err) {
+      console.error('Embed Error', err);
     }
+  }
 
   } catch (error) {
     console.error('❌ Embed error:', error);

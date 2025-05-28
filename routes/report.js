@@ -4,7 +4,6 @@ import path from 'path';
 import chalk from 'chalk';
 import { logPluginReport } from '../utils/reportLogger.js';
 import { formatTime } from '../utils/formatTime.js';
-import client from '../Discord/bot.js';
 
 import { EmbedBuilder } from 'discord.js';
 
@@ -117,6 +116,7 @@ router.post('/report', async (req, res) => {
   logPluginReport(pluginNameForLog, tableLines.join('\n'));
 
   // --- Discord Embed ---
+
   const errorEmbed = new EmbedBuilder()
     .setTitle(`❗ Reporte de Error: ${report.plugin || 'Unknow Plugin'}`)
     .setDescription(`🔎 Desde **${report.serverName || 'Unknow Server'}**`)
@@ -135,13 +135,16 @@ router.post('/report', async (req, res) => {
     .setTimestamp()
     .setFooter({ text: 'FV Studios', iconURL: 'https://i.imgur.com/YP5kVNk_d.webp?maxwidth=760&fidelity=grand' });
 
-  try {
-    const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
-    if (channel?.isTextBased()) {
-      await channel.send({ embeds: [errorEmbed] });
+  if (process.env.DISCORD_ENABLED === 'true') {
+    try {
+      const { default: client } = await import('../Discord/bot.js');
+      const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
+      if (channel?.isTextBased()) {
+        await channel.send({ embeds: [errorEmbed] });
+      }
+    } catch (err) {
+      console.error('Embed Error', err);
     }
-  } catch (err) {
-    console.error('Embed Error', err);
   }
 
   res.status(200).json({ ok: true, path: filePath });

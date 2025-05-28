@@ -1,7 +1,6 @@
 import express from 'express';
 import { readKeys, saveKeys } from '../utils/keyManager.js';
 import { EmbedBuilder } from 'discord.js';
-import client from '../Discord/bot.js';
 
 const router = express.Router();
 
@@ -49,27 +48,32 @@ router.get('/validate/:key/:pluginName', async (req, res) => {
         .setTimestamp()
         .setFooter({ text: 'FV Studios', iconURL: 'https://i.imgur.com/YP5kVNk_d.webp?maxwidth=760&fidelity=grand' });
 
+    if (process.env.DISCORD_ENABLED === 'true') {
     try {
-        const channel = await client.channels.fetch(process.env.VALIDATION_CHANNEL_ID);
-        if (channel?.isTextBased()) {
-            await channel.send({ embeds: [validationEmbed] });
-        }
+      const { default: client } = await import('../Discord/bot.js');
+      const channel = await client.channels.fetch(process.env.REPORT_CHANNEL_ID);
+      if (channel?.isTextBased()) {
+        await channel.send({ embeds: [errorEmbed] });
+      }
     } catch (err) {
-        console.error('Embed Error:', err);
+      console.error('Embed Error', err);
     }
+  }
 
-    if (!valid) {
-        return res.json({ valid: false, message: validationMessage });
-    }
-
-    // procces Key
+    if (keyObj) {
     keyObj.expired = true;
     saveKeys(keys);
+    } else {
+    // Maneja el caso donde no se encontró el keyObj
+    console.log('Key no encontrada');
+    }
 
     return res.json({
-        valid: true,
-        message: `[${pluginName}] Validated "${name}" from ${ip}:${port}`,
-        extras: others
+    valid,   // envía el valor correcto según la validación
+    message: valid
+        ? `[${pluginName}] Validated "${name}" from ${ip}:${port}`
+        : validationMessage,
+    extras: others
     });
 });
 
